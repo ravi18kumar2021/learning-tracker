@@ -918,7 +918,7 @@ h2 {
     }
 
     .topic-add-container input {
-        flex-grow: 0;
+        /* flex-grow: 0; */
         width: 65%;
         padding: 6px 8px;
         font-size: 12px;
