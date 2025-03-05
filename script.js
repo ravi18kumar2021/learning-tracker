@@ -325,11 +325,13 @@ function renderCourses() {
             courseDiv.dataset.id = course.id;
 
             const isSmallScreen = window.matchMedia("(max-width: 439px)").matches;
+            const isExpanded = syllabusSection.dataset.courseId === course.id.toString() && syllabusSection.style.display === 'block';
+            const iconClass = isExpanded ? 'fa-minus' : 'fa-plus';
 
             courseDiv.innerHTML = `
                 <div class="course-card-content">
                     <div class="course-editable" data-id="${course.id}">
-                        <h3><i class="fa fa-plus course-add-chapter" data-id="${course.id}"></i> ${course.name.toUpperCase()}</h3>
+                        <h3><i class="fa ${iconClass} course-add-chapter" data-id="${course.id}"></i> ${course.name.toUpperCase()}</h3>
                     </div>
                     <span class="course-date">Created: ${course.creationDateTime}</span>
                     <div class="actions">
@@ -359,8 +361,21 @@ function renderCourses() {
 
             courseDiv.addEventListener('click', (e) => {
                 if (!e.target.closest('.edit-btn, .delete-btn, .course-add-chapter')) {
-                    console.log('Course clicked, showing syllabus for ID:', course.id);
-                    showSyllabus(course.id, course.name);
+                    const syllabusSection = document.getElementById('syllabusSection');
+                    const currentCourseId = syllabusSection.dataset.courseId;
+
+                    if (currentCourseId === course.id.toString() && syllabusSection.style.display === 'block') {
+                        // Collapse the syllabus and change to plus icon
+                        hideSyllabus();
+                        const icon = courseDiv.querySelector('.course-add-chapter');
+                        icon.className = 'fa fa-plus course-add-chapter';
+                    } else {
+                        // Expand the syllabus and change to minus icon
+                        console.log('Course clicked, showing syllabus for ID:', course.id);
+                        showSyllabus(course.id, course.name);
+                        const icon = courseDiv.querySelector('.course-add-chapter');
+                        icon.className = 'fa fa-minus course-add-chapter';
+                    }
                 }
             });
 
@@ -565,6 +580,8 @@ function showSyllabus(courseId, courseName) {
     courseTitle.textContent = `${courseName} Syllabus`;
     syllabusSection.dataset.courseId = courseId;
     renderSyllabus(courseId);
+    syllabusSection.style.display = 'block'; // Ensure this is explicitly set
+    renderCourses(); // Re-render courses to update icons
 }
 
 // Hide Syllabus
@@ -573,6 +590,7 @@ function hideSyllabus() {
     syllabusSection.style.display = 'none';
     syllabusSection.dataset.courseId = '';
     document.getElementById('chaptersList').innerHTML = '';
+    renderCourses();
 }
 
 // Expand/Collapse Functionality
